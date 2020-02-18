@@ -2,7 +2,7 @@ package main
 
 import (
     "database/sql"
-    "StarWarsApp/lib/dbFactory"
+    "StarWarsApp/StarWarsApp/lib/dbFactory"
     "fmt"
     "strconv"
     _ "github.com/mattn/go-sqlite3"
@@ -15,11 +15,11 @@ func main() {
     
     database, err := sql.Open("sqlite3", "Database/StarWarsDB.db")
     defer database.Close()
-
     if err != nil {
         fmt.Println("Failed to open the source database:", err)
     }
 
+    //CHECK IF THE DATABASE EXISTS, IF NOT, CREATE IT
     var doesTestTableExist bool
     err = database.QueryRow("SELECT EXISTS (SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'character' LIMIT 1)").Scan(&doesTestTableExist)
     if err != nil {
@@ -30,12 +30,19 @@ func main() {
 
     }
     
+    //CHECK IF ANY ARGUMENT HAS BEEN INPUT
     if len(os.Args)>1{
-        //GET ARGUMENT CHARACTER
         showCharacter(database,os.Args[1])
+		menu(database)
 
-        /////////////MENU BEGIN
-        var option string
+    }else{
+        fmt.Println("You haven't input any character. Type: go run Main.go nameOfCharacter")
+    }
+}
+
+//SHOWS THE MENU AND MANAGE THE OPTIONS
+func menu(database *sql.DB){
+	var option string
         for option!="0"{
             fmt.Println("\nChoose one of the following options?")
             fmt.Println("\tEnter another character's name   (1)")
@@ -45,12 +52,8 @@ func main() {
             fmt.Println("\tView the list of films           (5)")
             fmt.Println("\tView characters by vehicle       (6)")
             fmt.Println("\tExit                             (0)")
-            //fmt.Scanf("%c", &option)
-       
             fmt.Scanf("%s\n", &option)
            
-
-
             switch option{
                 case "1":   
                             var charName string
@@ -71,52 +74,9 @@ func main() {
                 default:    fmt.Println("Wrong option, try again")
             }
         }
-
-    }else{
-        fmt.Println("You haven't input any character. Type: go run Main.go nameOfCharacter")
-    }
-    
-
-
-    /*rows, e = database.Query("SELECT idCharacter, name FROM character")
-    if e != nil {
-        fmt.Println("Failed to reach the \"starship\" table:", e)
-    }
-    var idC int
-    var nom string
-    for rows.Next() {
-        rows.Scan(&idC,&nom)
-        fmt.Println("idCharac:"+strconv.Itoa(idC)+" Name:"+nom)
-    }
-
-    rows, e = database.Query("SELECT * FROM film")
-    if e != nil {
-        fmt.Println("Failed to reach the \"film\" table:", e)
-    }
-    var nombre string
-    var idStars int
-    for rows.Next() {
-        rows.Scan(&idStars,&nombre)
-        fmt.Println("idFilm:"+strconv.Itoa(idStars)+" "+nombre)
-    }
-
-    rows, e = database.Query("SELECT * FROM filmCharacter")
-    if e != nil {
-        fmt.Println("Failed to reach the \"filmCharacter\" table:", e)
-    }
-    var idPiloto int
-   
-    var nombrePersonaje string
-    var nombreNavePiloto string
-    for rows.Next() {
-        rows.Scan(&idPiloto,&nombrePersonaje,&nombreNavePiloto)
-        fmt.Println("idFilmPerson:"+strconv.Itoa(idPiloto) + " person: " + nombrePersonaje+ "film:  " + nombreNavePiloto)
-    }
-
-   */
-
 }
 
+// SELECT ALL QUERY
 func selectAll(database *sql.DB, rName string, table string){
     rows, e := database.Query("SELECT "+rName+" FROM "+table)
     if e != nil {
@@ -129,6 +89,7 @@ func selectAll(database *sql.DB, rName string, table string){
     }
 }
 
+// SHOWS A CHARACTER FROM THE DATABASE
 func showCharacter(database *sql.DB, character string){
     rows, e := database.Query("SELECT * FROM character Where name LIKE "+"'"+character+"%'")
     if e != nil {
