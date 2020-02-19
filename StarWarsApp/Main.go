@@ -36,7 +36,7 @@ func main() {
 		menu(database)
 
     }else{
-        fmt.Println("You haven't input any character. Type: go run Main.go nameOfCharacter")
+        fmt.Println("You haven't input any character. Type: StarWarsApp nameOfCharacter")
     }
 }
 
@@ -50,7 +50,6 @@ func menu(database *sql.DB){
             fmt.Println("\tView the list of vehicles        (3)")
             fmt.Println("\tView the list of starships       (4)")
             fmt.Println("\tView the list of films           (5)")
-            fmt.Println("\tView characters by vehicle       (6)")
             fmt.Println("\tExit                             (0)")
             fmt.Scanf("%s\n", &option)
            
@@ -77,8 +76,8 @@ func menu(database *sql.DB){
 }
 
 // SELECT ALL QUERY
-func selectAll(database *sql.DB, rName string, table string){
-    rows, e := database.Query("SELECT "+rName+" FROM "+table)
+func selectAll(database *sql.DB, regName string, table string){
+    rows, e := database.Query("SELECT "+regName+" FROM "+table+" ORDER BY "+regName)
     if e != nil {
         fmt.Println("Failed to reach the \""+table+"\" table:", e)
     }
